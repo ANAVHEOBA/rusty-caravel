@@ -13,7 +13,7 @@ use log::info;
 enum SenderCANMessages {
     SendToID {
         id: u32,
-        message: u64,
+        message: Vec<u8>,
         _cycle_time: u64,
     },
 }
@@ -42,7 +42,7 @@ impl SenderCAN {
                 message,
                 _cycle_time: _,
             } => {
-                let frame = CANFrame::new(id, &message.to_be_bytes(), false, false).unwrap();
+                let frame = CANFrame::new(id, &message, false, false).unwrap();
                 canutil::send_can_frame(&self.socket, frame).await;
             }
         }
@@ -72,7 +72,7 @@ impl SenderCANHandle {
         Self { sender }
     }
 
-    pub async fn send_can_message(&self, id: u32, message: u64, _cycle_time: u64) {
+    pub async fn send_can_message(&self, id: u32, message: Vec<u8>, _cycle_time: u64) {
         let msg = SenderCANMessages::SendToID {
             id,
             message,
